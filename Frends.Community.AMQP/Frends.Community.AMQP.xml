@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Frends.Community.AMQP</name>
+    </assembly>
+    <members>
+        <member name="P:Frends.Community.AMQP.Definitions.vanhako.AmqpConnection.BusUri">
+            <summary>
+            The URI for the AMQP message bus, username and key must be url encoded.
+            </summary>
+        </member>
+        <member name="P:Frends.Community.AMQP.Definitions.vanhako.AmqpConnection.QueueOrTopicName">
+            <summary>
+            Name of target queue or topic.
+            </summary>
+        </member>
+        <member name="P:Frends.Community.AMQP.Definitions.vanhako.AmqpConnection.linkName">
+            <summary>
+            Link name.
+            </summary>
+        </member>
+        <member name="F:Frends.Community.AMQP.Definitions.vanhako.AmqpConnection.timeout">
+            <summary>
+            Timeout in seconds for receiving or sending message to the queue.
+            </summary>
+        </member>
+        <member name="P:Frends.Community.AMQP.Definitions.vanhako.AmqpConnection.SearchCertificateBy">
+            <summary>
+            Select whether certificate is used and where it can be found.
+            </summary>
+        </member>
+        <member name="F:Frends.Community.AMQP.Definitions.vanhako.AmqpConnection.issuer">
+            <summary>
+            Issuer of certificate.
+            </summary>
+        </member>
+        <member name="F:Frends.Community.AMQP.Definitions.vanhako.AmqpConnection.pfxFilePath">
+            <summary>
+            Path where .pfx (certificate) file can be found.
+            </summary>
+        </member>
+        <member name="F:Frends.Community.AMQP.Definitions.vanhako.AmqpConnection.pfxPassword">
+            <summary>
+            Password for the certificate.
+            </summary>
+        </member>
+        <member name="T:Frends.Community.AMQP.Definitions.vanhako.sendMessageResult">
+            <summary>
+            Describes if message was sent successfully.
+            </summary>
+        </member>
+        <member name="F:Frends.Community.AMQP.Definitions.vanhako.sendMessageResult.Success">
+            <summary>
+            True if message was sent successfully.
+            </summary>
+        </member>
+        <member name="F:Frends.Community.AMQP.Definitions.vanhako.ReceiveMessageResult.Success">
+            <summary>
+            True if message was received successfully.
+            </summary>
+        </member>
+        <member name="P:Frends.Community.AMQP.Definitions.AmqpConnection.BusUri">
+            <summary>
+            The URI for the AMQP Message bus, username and key must be url encoded.
+            </summary>
+        </member>
+        <member name="P:Frends.Community.AMQP.Definitions.AmqpConnection.QueueOrTopicName">
+            <summary>
+            Name of target queue or topic.
+            </summary>
+        </member>
+        <member name="P:Frends.Community.AMQP.Definitions.AmqpConnection.LinkName">
+            <summary>
+            Link name.
+            </summary>
+        </member>
+        <member name="F:Frends.Community.AMQP.Definitions.AmqpConnection.Timeout">
+            <summary>
+            Timeout in seconds for receiving or sending Message to the queue.
+            </summary>
+        </member>
+        <member name="P:Frends.Community.AMQP.Definitions.AmqpConnection.SearchCertificateBy">
+            <summary>
+            Select whether certificate is used and where it can be found.
+            </summary>
+        </member>
+        <member name="F:Frends.Community.AMQP.Definitions.AmqpConnection.Issuer">
+            <summary>
+            Issuer of certificate.
+            </summary>
+        </member>
+        <member name="F:Frends.Community.AMQP.Definitions.AmqpConnection.PfxFilePath">
+            <summary>
+            Path where .pfx (certificate) file can be found.
+            </summary>
+        </member>
+        <member name="F:Frends.Community.AMQP.Definitions.AmqpConnection.PfxPassword">
+            <summary>
+            Password for the certificate.
+            </summary>
+        </member>
+        <member name="T:Frends.Community.AMQP.Definitions.sendMessageResult">
+            <summary>
+            Describes if Message was sent successfully.
+            </summary>
+        </member>
+        <member name="F:Frends.Community.AMQP.Definitions.sendMessageResult.Success">
+            <summary>
+            True if Message was sent successfully.
+            </summary>
+        </member>
+        <member name="F:Frends.Community.AMQP.Definitions.ReceiveMessageResult.Success">
+            <summary>
+            True if Message was received successfully.
+            </summary>
+        </member>
+        <member name="M:Frends.Community.AMQP.ClassName.AmqpReceiver(Frends.Community.AMQP.Definitions.AmqpConnection)">
+            <summary>
+            This is task
+            Documentation: https://github.com/CommunityHiQ/Frends.Community.AMQP
+            </summary>
+            <param name="connection">Defines how to connect AMQP queue.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Frends.Community.AMQP.ClassName.AmqpSender(Frends.Community.AMQP.Definitions.AmqpConnection,Frends.Community.AMQP.Definitions.AmqpMessage)">
+            <summary>
+            This is task
+            Documentation: https://github.com/CommunityHiQ/Frends.Community.AMQP
+            </summary>
+            <param name="connection">Defines how to connect AMQP queue.</param>
+            <param name="message">Message to be sent to the queue.</param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
