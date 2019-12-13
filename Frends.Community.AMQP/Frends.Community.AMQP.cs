@@ -8,13 +8,13 @@ using Amqp.Sasl;
 
 using System.Linq;
 
+
 using Frends.Community.AMQP.Definitions;
 
 #pragma warning disable 1591
 
 namespace Frends.Community.AMQP
 {
-
     public class ClassName
     {
         /// <summary>
@@ -23,31 +23,11 @@ namespace Frends.Community.AMQP
         /// </summary>
         /// <param name="connection">Defines how to connect AMQP queue.</param>
         /// <returns></returns>
-        public static async Task<ReceiveMessageResult> AmqpReceiver(AmqpConnection connection)
-        {
-
-            var message = await AmqpReceiverAdvanced(connection);
-
-            var ret = new ReceiveMessageResult
-            {
-                Success = true,
-                Message = message.Body.ToString()
-            };
-            
-            return ret;
-        }
-        
-        /// <summary>
-        /// Return Message class from Amqp.Net Lite. 
-        /// Documentation: https://github.com/CommunityHiQ/Frends.Community.AMQP
-        /// </summary>
-        /// <param name="connection">Defines how to connect AMQP queue.</param>
-        /// <returns></returns>
-        public static async Task<Message> AmqpReceiverAdvanced(AmqpConnection connection)
+        public static async Task<Message> AmqpReceiver(AmqpConnection connection)
         {
             var conn = await CreateConnection(connection);
             var session = new Session(conn);
-
+            
             ReceiverLink receiver = new ReceiverLink(session, connection.LinkName, connection.QueueOrTopicName);
 
             var message = await receiver.ReceiveAsync(new TimeSpan(0, 0, 0, connection.Timeout));
@@ -59,8 +39,6 @@ namespace Frends.Community.AMQP
             await receiver.CloseAsync();
             await session.CloseAsync();
             await conn.CloseAsync();
-
-            // https://azure.github.io/amqpnetlite/api/Amqp.Message.html
 
             return message;
         }
@@ -74,27 +52,13 @@ namespace Frends.Community.AMQP
         /// <returns></returns>
         public static async Task<sendMessageResult> AmqpSender(AmqpConnection connection, AmqpMessage message)
         {
-            var ret = await AmqpSenderAdvanced(connection, CreateMessage(message));
-            
-            return ret;
-        }
-
-        /// <summary>
-        /// This is task
-        /// Documentation: https://github.com/CommunityHiQ/Frends.Community.AMQP
-        /// </summary>
-        /// <param name="connection">Defines how to connect AMQP queue.</param>
-        /// <param name="message">Message to be sent to the queue.</param>
-        /// <returns></returns>
-        public static async Task<sendMessageResult> AmqpSenderAdvanced(AmqpConnection connection, Message message)
-        {
             var conn = await CreateConnection(connection);
             var session = new Session(conn);
             var sender = new SenderLink(session, connection.LinkName, connection.QueueOrTopicName);
 
             try
             {
-                await sender.SendAsync(message, new TimeSpan(0, 0, 0, connection.Timeout));
+                await sender.SendAsync(CreateMessage(message), new TimeSpan(0, 0, 0, connection.Timeout));
             }
             finally
             {
@@ -108,8 +72,7 @@ namespace Frends.Community.AMQP
             {
                 Success = true
             };
-            // TODO mitä jos Timeout 
-            
+            // TODO mitä jos timeout 
             return ret;
         }
 
