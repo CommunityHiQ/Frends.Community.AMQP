@@ -13,48 +13,49 @@ namespace Frends.Community.Amqp.Tests
 
 
         ///
-        /// Start AMQP server by (ensure that you use same addresses in command and in tests:
+        /// Start AMQP server before executing test by (ensure that you use same addresses in command and in tests):
         /// .\TestAmqpBroker.exe amqp://localhost:5676 amqps://localhost:5677 /creds:guest:guest /cert:localhost
         /// 
+        /// If you have valid tls cert you may want to enable cert validation.
 
-        private static string insecureBus = "amqp://guest:guest@localhost:5673";
+        private static readonly string insecureBus = "amqp://guest:guest@localhost:5673";
 
-        private static string secureBus = "amqps://guest:guest@localhost:5678";
+        private static readonly string secureBus = "amqps://guest:guest@localhost:5678";
 
-        private static string queue = "q1";
+        private static readonly string queue = "q1";
 
-        private static bool disableServerCertValidation = true;
+        private static readonly bool disableServerCertValidation = true;
 
-        static AmqpProperties properties = new AmqpProperties
+
+
+        static readonly AmqpProperties properties = new AmqpProperties
         {
             MessageId = Guid.NewGuid().ToString()
         };
 
-        static AmqpMessage message = new AmqpMessage()
+        static readonly AmqpMessage message = new AmqpMessage()
         {
             BodyAsString = "Hello AMQP!",
 
         };
 
-        static AmqpMessageProperties amqpMessageProperties = new AmqpMessageProperties()
+        static readonly AmqpMessageProperties amqpMessageProperties = new AmqpMessageProperties
         {
             ApplicationProperties = new ApplicationProperty[] { },
             Properties = properties
         };
 
-
-        static InputReceiver inputReceiver = new InputReceiver
+        static  InputSender inputSender = new InputSender
         {
+            Message = message,
             QueueOrTopicName = queue,
             LinkName = Guid.NewGuid().ToString()
         };
 
-        static InputSender inputSender = new InputSender
+        static InputReceiver inputReceiver = new InputReceiver
         {
-            Message = message,
             QueueOrTopicName = queue,
             LinkName = Guid.NewGuid().ToString(),
-
         };
 
         static Options optionsDontUseClientCert = new Options
@@ -64,7 +65,8 @@ namespace Frends.Community.Amqp.Tests
             DisableServerCertValidation = disableServerCertValidation
         };
 
-        // Intentionally not used, but this way you can use client certificates.
+        // This way you can use client certificates.
+        /*
         static Options optionsUseClientCert = new Options
         {
             Timeout = 15,
@@ -73,22 +75,24 @@ namespace Frends.Community.Amqp.Tests
             PfxPassword = "pw",
             PfxFilePath = "\\TestAmqpBroker\\privatekey.pfx"
         };
+        */
 
         [Test]
         public async Task TestInsecure()
         {
-
             inputSender.BusUri = insecureBus;
             inputReceiver.BusUri = insecureBus;
+            inputReceiver.LinkName = Guid.NewGuid().ToString();
 
-            var ret = await Amqp.AmqpSender(inputSender, optionsDontUseClientCert, amqpMessageProperties);
+            var ret = await Amqp.AmqpSender(inputSender, optionsDontUseClientCert, amqpMessageProperties, new System.Threading.CancellationToken());
 
             Assert.NotNull(ret);
             Assert.That(ret.Success, Is.True);
 
-            var ret2 = await Amqp.AmqpReceiver(inputReceiver, optionsDontUseClientCert);
+            var ret2 = await Amqp.AmqpReceiver(inputReceiver, optionsDontUseClientCert, new System.Threading.CancellationToken());
 
             Assert.NotNull(ret2);
+            Assert.NotNull(ret2.Body);
             Assert.That(ret2.Body.ToString(), Is.EqualTo("Hello AMQP!"));
         }
 
@@ -97,16 +101,17 @@ namespace Frends.Community.Amqp.Tests
         public async Task TestWithSecureConnection()
         {
             inputSender.BusUri = secureBus;
-            inputReceiver.BusUri = insecureBus;
+            inputReceiver.BusUri = secureBus;
 
-            var ret = await Amqp.AmqpSender(inputSender, optionsDontUseClientCert, amqpMessageProperties);
+            var ret = await Amqp.AmqpSender(inputSender, optionsDontUseClientCert, amqpMessageProperties, new System.Threading.CancellationToken());
 
             Assert.NotNull(ret);
             Assert.That(ret.Success, Is.True);
 
-            var ret2 = await Amqp.AmqpReceiver(inputReceiver, optionsDontUseClientCert);
+            var ret2 = await Amqp.AmqpReceiver(inputReceiver, optionsDontUseClientCert, new System.Threading.CancellationToken());
             
             Assert.NotNull(ret2);
+            Assert.NotNull(ret2.Body);
             Assert.That(ret2.Body.ToString(), Is.EqualTo("Hello AMQP!"));
         }
     }

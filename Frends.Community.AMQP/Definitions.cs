@@ -94,7 +94,7 @@ namespace Frends.Community.Amqp.Definitions
         public string PfxPassword { get; set; }
 
         /// <summary>
-        /// Disable server certificate validation when TLS is used. False means certificate is validated.
+        /// Disable server certificate validation when TLS is used. False means certificate is validated. If connection is not secured with tls this option does not do anything.
         /// </summary>
         [DefaultValue(false)]
         public bool DisableServerCertValidation { get; set; }
@@ -105,7 +105,7 @@ namespace Frends.Community.Amqp.Definitions
     /// <summary>
     /// Describes if Message was sent successfully.
     /// </summary>
-    public class sendMessageResult
+    public class SendMessageResult
     {
         /// <summary>
         /// True if Message was sent successfully.
@@ -120,9 +120,9 @@ namespace Frends.Community.Amqp.Definitions
         /// </summary>
         public bool Success;
         /// <summary>
-        /// The content of message body.
+        /// The body (content) of the message.
         /// </summary>
-        public string Message;
+        public object Body;
     }
 
     public class AmqpMessage
@@ -159,8 +159,6 @@ namespace Frends.Community.Amqp.Definitions
         [DefaultValue("Guid.NewGuid().ToString()")]
         public string MessageId { get; set; }
 
-        [DisplayFormat(DataFormatString = "Text")]
-        [DefaultValue("")]
         public DateTime? AbsoluteExpiryTime { get; set; }
 
         [DisplayFormat(DataFormatString = "Text")]
@@ -175,8 +173,6 @@ namespace Frends.Community.Amqp.Definitions
         [DefaultValue("")]
         public string CorrelationId { get; set; }
 
-        [DisplayFormat(DataFormatString = "Text")]
-        [DefaultValue("")]
         public DateTime? CreationTime { get; set; }
 
         [DisplayFormat(DataFormatString = "Text")]
