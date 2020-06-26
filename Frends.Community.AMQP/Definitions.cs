@@ -3,11 +3,11 @@ using System;
 using Amqp.Types;
 using System.ComponentModel.DataAnnotations;
 
+#pragma warning disable 1591
 
-
-namespace Frends.Community.AMQP.Definitions
+namespace Frends.Community.Amqp.Definitions
 {
-    public class AmqpConnection
+    public class InputReceiver
     {
         /// <summary>
         /// The URI for the AMQP Message bus, username and key must be url encoded.
@@ -22,6 +22,7 @@ namespace Frends.Community.AMQP.Definitions
         [DisplayFormat(DataFormatString = "Text")]
         public string QueueOrTopicName { get; set; }
 
+
         /// <summary>
         /// Link name.
         /// </summary>
@@ -29,35 +30,75 @@ namespace Frends.Community.AMQP.Definitions
         [DisplayFormat(DataFormatString = "Text")]
         public string LinkName { get; set; }
 
+    }
+
+    public class InputSender
+    {
+        public AmqpMessage Message { get; set; }
+        /// <summary>
+        /// The URI for the AMQP Message bus, username and key must be url encoded.
+        /// </summary>
+        [DisplayFormat(DataFormatString = "Text")]
+        [DefaultValue("\"amqps://<username>:<key>@<host>:<port>\"")]
+        public string BusUri { get; set; }
+
+        /// <summary>
+        /// Name of target queue or topic.
+        /// </summary>
+        [DisplayFormat(DataFormatString = "Text")]
+        public string QueueOrTopicName { get; set; }
+
+
+        /// <summary>
+        /// Link name.
+        /// </summary>
+        [DefaultValue("{{Guid.NewGuid().ToString()}}")]
+        [DisplayFormat(DataFormatString = "Text")]
+        public string LinkName { get; set; }
+
+    }
+
+    public class Options
+    {
         /// <summary>
         /// Timeout in seconds for receiving or sending Message to the queue.
         /// </summary>
-        [DisplayFormat(DataFormatString = "Int")]
-        public int Timeout;
+        [DefaultValue(30)]
+        public int Timeout { get; set; }
 
         /// <summary>
         /// Select whether certificate is used and where it can be found.
         /// </summary>
         [DefaultValue(SearchCertificateBy.DontUseCertificate)]
-        public SearchCertificateBy SearchCertificateBy { get; set; }
+        public SearchCertificateBy SearchClientCertificateBy { get; set; }
 
         /// <summary>
         /// Issuer of certificate.
         /// </summary>
+        [UIHint(nameof(SearchClientCertificateBy),"", SearchCertificateBy.Issuer)]
         [DisplayFormat(DataFormatString = "Text")]
-        public string Issuer;
+        public string Issuer { get; set; }
 
         /// <summary>
         /// Path where .pfx (certificate) file can be found.
         /// </summary>
+        [UIHint(nameof(SearchClientCertificateBy), "", SearchCertificateBy.File)]
         [DisplayFormat(DataFormatString = "Text")]
-        public string PfxFilePath;
+        public string PfxFilePath { get; set; }
 
         /// <summary>
         /// Password for the certificate.
         /// </summary>
+        [UIHint(nameof(SearchClientCertificateBy), "", SearchCertificateBy.File)]
         [DisplayFormat(DataFormatString = "Text")]
-        public string PfxPassword;
+        public string PfxPassword { get; set; }
+
+        /// <summary>
+        /// Disable server certificate validation when TLS is used. False means certificate is validated.
+        /// </summary>
+        [DefaultValue(false)]
+        public bool DisableServerCertValidation { get; set; }
+
 
     }
 
@@ -78,24 +119,39 @@ namespace Frends.Community.AMQP.Definitions
         /// True if Message was received successfully.
         /// </summary>
         public bool Success;
+        /// <summary>
+        /// The content of message body.
+        /// </summary>
         public string Message;
     }
 
     public class AmqpMessage
     {
+
+        /// <summary>
+        /// The message body.
+        /// </summary>
+        [DisplayFormat(DataFormatString = "Text")]
         public object BodyAsString { get; set; }
+    }
+
+    public class AmqpMessageProperties
+    {
+
+        /// <summary>
+        /// Application properties section of an AMQP messages.
+        /// </summary>
         public ApplicationProperty[] ApplicationProperties { get; set; }
+
+        /// <summary>
+        /// The Immutable properties of the Message.
+        /// </summary>
         public AmqpProperties Properties { get; set; }
     }
 
-    public class AmqpMessageInMIKÄTÄMÄON
-    {
-        // https://azure.github.io/amqpnetlite/api/Amqp.Message.html#Amqp_Message_Body
-        public object Body { get; set; }
-        // https://azure.github.io/amqpnetlite/api/Amqp.Types.RestrictedDescribed.html
-        public Descriptor descriptor { get; set; }
-    }
-
+    /// <summary>
+    /// The Immutable properties of the Message. https://azure.github.io/amqpnetlite/api/Amqp.Framing.Properties.html
+    /// </summary>
     public class AmqpProperties
     {
         private uint _groupSequence;
@@ -127,7 +183,6 @@ namespace Frends.Community.AMQP.Definitions
         [DefaultValue("")]
         public string GroupId { get; set; }
 
-        [DisplayFormat(DataFormatString = "Int")]
         [DefaultValue(0)]
         public UInt32 GroupSequence
         {
@@ -157,6 +212,9 @@ namespace Frends.Community.AMQP.Definitions
 
     }
 
+    /// <summary>
+    /// Application properties section of an AMQP messages. https://azure.github.io/amqpnetlite/api/Amqp.Framing.ApplicationProperties.html
+    /// </summary>
     public class ApplicationProperty
     {
         public string Name { get; set; }

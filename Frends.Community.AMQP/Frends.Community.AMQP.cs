@@ -9,32 +9,36 @@ using Amqp.Sasl;
 using System.Linq;
 
 
-using Frends.Community.AMQP.Definitions;
+using Frends.Community.Amqp.Definitions;
+using System.ComponentModel;
 
 #pragma warning disable 1591
 
-namespace Frends.Community.AMQP
+namespace Frends.Community.Amqp
 {
-    public class ClassName
+    public class Amqp
     {
+
+
+        static readonly RemoteCertificateValidationCallback noneCertValidator = (a, b, c, d) => true;
+
         /// <summary>
         /// This is task
         /// Documentation: https://github.com/CommunityHiQ/Frends.Community.AMQP
         /// </summary>
-        /// <param name="connection">Defines how to connect AMQP queue.</param>
+        /// <param name="input">Defines how to connect AMQP queue.</param>
         /// <returns></returns>
-        public static async Task<Message> AmqpReceiver(AmqpConnection connection)
+        public static async Task<Message> AmqpReceiver([PropertyTab] InputReceiver input, [PropertyTab] Options options)
         {
-            var conn = await CreateConnection(connection);
+            var conn = await CreateConnection(input.BusUri, options.SearchClientCertificateBy, options.DisableServerCertValidation, options.Issuer, options.PfxFilePath, options.PfxPassword);
             var session = new Session(conn);
             
-            ReceiverLink receiver = new ReceiverLink(session, connection.LinkName, connection.QueueOrTopicName);
+            ReceiverLink receiver = new ReceiverLink(session, input.LinkName, input.QueueOrTopicName);
 
-            var message = await receiver.ReceiveAsync(new TimeSpan(0, 0, 0, connection.Timeout));
+            var message = await receiver.ReceiveAsync(new TimeSpan(0, 0, 0, options.Timeout));
             if (message != null)
             {
                 receiver.Accept(message);
-                // TODO mitä jos ei löydy
             }
             await receiver.CloseAsync();
             await session.CloseAsync();
@@ -47,18 +51,18 @@ namespace Frends.Community.AMQP
         /// This is task
         /// Documentation: https://github.com/CommunityHiQ/Frends.Community.AMQP
         /// </summary>
-        /// <param name="connection">Defines how to connect AMQP queue.</param>
+        /// <param name="input">Defines how to connect AMQP queue.</param>
         /// <param name="message">Message to be sent to the queue.</param>
         /// <returns></returns>
-        public static async Task<sendMessageResult> AmqpSender(AmqpConnection connection, AmqpMessage message)
+        public static async Task<sendMessageResult> AmqpSender([PropertyTab] InputSender input, [PropertyTab] Options options, [PropertyTab] AmqpMessageProperties messageProperties)
         {
-            var conn = await CreateConnection(connection);
+            var conn = await CreateConnection(input.BusUri, options.SearchClientCertificateBy, options.DisableServerCertValidation, options.Issuer, options.PfxFilePath, options.PfxPassword);
             var session = new Session(conn);
-            var sender = new SenderLink(session, connection.LinkName, connection.QueueOrTopicName);
+            var sender = new SenderLink(session, input.LinkName, input.QueueOrTopicName);
 
             try
             {
-                await sender.SendAsync(CreateMessage(message), new TimeSpan(0, 0, 0, connection.Timeout));
+                await sender.SendAsync(CreateMessage(input.Message, messageProperties), new TimeSpan(0, 0, 0, options.Timeout));
             }
             finally
             {
@@ -72,11 +76,10 @@ namespace Frends.Community.AMQP
             {
                 Success = true
             };
-            // TODO mitä jos timeout 
             return ret;
         }
 
-        private static Message CreateMessage(AmqpMessage amqpMessage)
+        private static Message CreateMessage(AmqpMessage amqpMessage, AmqpMessageProperties messageProperties)
         {
             var message = new Message(amqpMessage.BodyAsString)
             {
@@ -84,24 +87,24 @@ namespace Frends.Community.AMQP
                 ApplicationProperties = new ApplicationProperties()
             };
 
-            foreach (var applicationProperty in amqpMessage.ApplicationProperties)
+            foreach (var applicationProperty in messageProperties.ApplicationProperties)
             {
                 message.ApplicationProperties.Map.Add(applicationProperty.Name, applicationProperty.Value);
             }
 
-            message.Properties.MessageId = amqpMessage.Properties.MessageId;
-            message.Properties.AbsoluteExpiryTime = amqpMessage.Properties.AbsoluteExpiryTime ?? DateTime.MaxValue;
-            message.Properties.ContentEncoding = amqpMessage.Properties.ContentEncoding;
-            message.Properties.ContentType = amqpMessage.Properties.ContentType;
-            message.Properties.CorrelationId = amqpMessage.Properties.CorrelationId;
-            message.Properties.CreationTime = amqpMessage.Properties.CreationTime ?? DateTime.UtcNow;
-            message.Properties.GroupId = amqpMessage.Properties.GroupId;
-            message.Properties.GroupSequence = amqpMessage.Properties.GroupSequence;
-            message.Properties.ReplyToGroupId = amqpMessage.Properties.ReplyToGroupId;
-            message.Properties.ReplyTo = amqpMessage.Properties.ReplyTo;
-            message.Properties.Subject = amqpMessage.Properties.Subject;
-            message.Properties.UserId = amqpMessage.Properties.UserId;
-            message.Properties.To = amqpMessage.Properties.To;
+            message.Properties.MessageId = messageProperties.Properties.MessageId;
+            message.Properties.AbsoluteExpiryTime = messageProperties.Properties.AbsoluteExpiryTime ?? DateTime.MaxValue;
+            message.Properties.ContentEncoding = messageProperties.Properties.ContentEncoding;
+            message.Properties.ContentType = messageProperties.Properties.ContentType;
+            message.Properties.CorrelationId = messageProperties.Properties.CorrelationId;
+            message.Properties.CreationTime = messageProperties.Properties.CreationTime ?? DateTime.UtcNow;
+            message.Properties.GroupId = messageProperties.Properties.GroupId;
+            message.Properties.GroupSequence = messageProperties.Properties.GroupSequence;
+            message.Properties.ReplyToGroupId = messageProperties.Properties.ReplyToGroupId;
+            message.Properties.ReplyTo = messageProperties.Properties.ReplyTo;
+            message.Properties.Subject = messageProperties.Properties.Subject;
+            message.Properties.UserId = messageProperties.Properties.UserId;
+            message.Properties.To = messageProperties.Properties.To;
 
             return message;
         }
@@ -113,8 +116,10 @@ namespace Frends.Community.AMQP
             {
                 return true;
             }
-
-            throw new ArgumentException("Bad cert");
+            else
+            {
+                throw new ArgumentException("Bad cert"); // TODO error message
+            }
         }
 
         // Fetches the first certificate whose CN contains the given string, another way https://github.com/Azure/amqpnetlite/blob/master/Examples/PeerToPeer/PeerToPeer.Certificate/Program.cs (note apache licence)
@@ -130,13 +135,13 @@ namespace Frends.Community.AMQP
             return certificate;
         }
 
-        public static X509Certificate2 FindCertificateByFile(AmqpConnection connection)
+        public static X509Certificate2 FindCertificateByFile(string pfxFilePath, string pfxPassword)
         {
             // Read certificate from file,
             // for reference: https://stackoverflow.com/questions/9951729/x509certificate-constructor-exception
 
-            var certificate = new X509Certificate2(System.IO.File.ReadAllBytes(connection.PfxFilePath)
-                , connection.PfxPassword
+            var certificate = new X509Certificate2(System.IO.File.ReadAllBytes(pfxFilePath)
+                , pfxPassword
                 , X509KeyStorageFlags.MachineKeySet |
                   X509KeyStorageFlags.PersistKeySet |
                   X509KeyStorageFlags.Exportable);
@@ -149,32 +154,51 @@ namespace Frends.Community.AMQP
             return certificate;
         }
 
-        public static async Task<Connection> CreateConnection(AmqpConnection connection)
+        public static async Task<Connection> CreateConnection(string busUri, SearchCertificateBy searchClientCertificateBy, bool disableServerCertValidation, string issuer, string pfxFilePath, string pfxPassword)
         {
-            if (connection.SearchCertificateBy == SearchCertificateBy.DontUseCertificate)
+            if (searchClientCertificateBy == SearchCertificateBy.DontUseCertificate) 
             {
+                // Don't authenticate with client cert
+
+                /*
+                Connection.DisableServerCertValidation = options.DisableServerCertValidation; 
                 Address address = new Address(connection.BusUri);
                 var conn = new Connection(address);
-
-                return conn;
-            }
-            else
-            {
+                */
                 var factory = new ConnectionFactory();
 
-                factory.SSL.RemoteCertificateValidationCallback = ValidateServerCertificate;
-                // Connection.DisableServerCertValidation = true; // TODO REMOVE this from production
-                factory.SSL.RemoteCertificateValidationCallback = (a, b, c, d) => true;  // TODO REMOVE this from production
+                if (disableServerCertValidation == true)
+                {
+                    factory.SSL.RemoteCertificateValidationCallback = noneCertValidator;
+                }
+                var brokerAddress = new Address(busUri);
+                var conn = await factory.CreateAsync(brokerAddress); //.ConfigureAwait(false).GetAwaiter().GetResult();
+                return conn;
+            }
+            else  
+            {
+                // Do authenticate with client cert
+
+                var factory = new ConnectionFactory();
+
+                if (disableServerCertValidation == true) // Do NOT validate server certificate
+                {
+                    factory.SSL.RemoteCertificateValidationCallback = noneCertValidator;
+                }
+                else
+                {
+                    factory.SSL.RemoteCertificateValidationCallback = ValidateServerCertificate;
+                }
 
                 var certificate = new X509Certificate2();
 
-                if (connection.SearchCertificateBy == SearchCertificateBy.File)
+                if (searchClientCertificateBy == SearchCertificateBy.File)
                 {
-                    certificate = FindCertificateByFile(connection);
+                    certificate = FindCertificateByFile(pfxFilePath, pfxPassword);
                 }
-                else if (connection.SearchCertificateBy == SearchCertificateBy.Issuer)
+                else if (searchClientCertificateBy == SearchCertificateBy.Issuer)
                 {
-                    certificate = FindCertificateByCn(connection.Issuer);
+                    certificate = FindCertificateByCn(issuer);
                 }
                 else
                 {
@@ -196,11 +220,13 @@ namespace Frends.Community.AMQP
                 factory.SSL.ClientCertificates.Add(certificate);
                 factory.SASL.Profile = SaslProfile.External;
 
-                var brokerAddress = new Address(connection.BusUri);
+                var brokerAddress = new Address(busUri);
                 var conn = await factory.CreateAsync(brokerAddress);
 
                 return conn;
             }
         }
+
+
     }
 }
