@@ -35,7 +35,7 @@ namespace Frends.Community.Amqp
             var conn = await CreateConnection(input.BusUri, options.SearchClientCertificateBy, options.DisableServerCertValidation, options.Issuer, options.PfxFilePath, options.PfxPassword);
             var session = new Session(conn);
 
-            ReceiverLink receiver = new ReceiverLink(session, input.LinkName, input.QueueOrTopicName);
+            ReceiverLink receiver = new ReceiverLink(session, options.LinkName, input.QueueOrTopicName);
 
             var ret = new ReceiveMessageResult();
 
@@ -74,7 +74,7 @@ namespace Frends.Community.Amqp
         {
             var conn = await CreateConnection(input.BusUri, options.SearchClientCertificateBy, options.DisableServerCertValidation, options.Issuer, options.PfxFilePath, options.PfxPassword);
             var session = new Session(conn);
-            var sender = new SenderLink(session, input.LinkName, input.QueueOrTopicName);
+            var sender = new SenderLink(session, options.LinkName, input.QueueOrTopicName);
 
             cancellationToken.ThrowIfCancellationRequested();
 

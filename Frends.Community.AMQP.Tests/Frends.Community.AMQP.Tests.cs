@@ -10,8 +10,6 @@ namespace Frends.Community.Amqp.Tests
     [TestFixture]
     class TestClass
     {
-
-
         ///
         /// Start AMQP server before executing test by (ensure that you use same addresses in command and in tests):
         /// .\TestAmqpBroker.exe amqp://localhost:5676 amqps://localhost:5677 /creds:guest:guest /cert:localhost
@@ -19,14 +17,9 @@ namespace Frends.Community.Amqp.Tests
         /// If you have valid tls cert you may want to enable cert validation.
 
         private static readonly string insecureBus = "amqp://guest:guest@localhost:5673";
-
         private static readonly string secureBus = "amqps://guest:guest@localhost:5678";
-
         private static readonly string queue = "q1";
-
         private static readonly bool disableServerCertValidation = true;
-
-
 
         static readonly AmqpProperties properties = new AmqpProperties
         {
@@ -36,7 +29,6 @@ namespace Frends.Community.Amqp.Tests
         static readonly AmqpMessage message = new AmqpMessage()
         {
             BodyAsString = "Hello AMQP!",
-
         };
 
         static readonly AmqpMessageProperties amqpMessageProperties = new AmqpMessageProperties
@@ -49,18 +41,17 @@ namespace Frends.Community.Amqp.Tests
         {
             Message = message,
             QueueOrTopicName = queue,
-            LinkName = Guid.NewGuid().ToString()
         };
 
         static InputReceiver inputReceiver = new InputReceiver
         {
             QueueOrTopicName = queue,
-            LinkName = Guid.NewGuid().ToString(),
         };
 
         static Options optionsDontUseClientCert = new Options
         {
             Timeout = 15,
+            LinkName = Guid.NewGuid().ToString(),
             SearchClientCertificateBy = SearchCertificateBy.DontUseCertificate,
             DisableServerCertValidation = disableServerCertValidation
         };
@@ -82,7 +73,6 @@ namespace Frends.Community.Amqp.Tests
         {
             inputSender.BusUri = insecureBus;
             inputReceiver.BusUri = insecureBus;
-            inputReceiver.LinkName = Guid.NewGuid().ToString();
 
             var ret = await Amqp.AmqpSender(inputSender, optionsDontUseClientCert, amqpMessageProperties, new System.Threading.CancellationToken());
 

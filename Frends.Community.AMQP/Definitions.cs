@@ -21,15 +21,6 @@ namespace Frends.Community.Amqp.Definitions
         /// </summary>
         [DisplayFormat(DataFormatString = "Text")]
         public string QueueOrTopicName { get; set; }
-
-
-        /// <summary>
-        /// Link name.
-        /// </summary>
-        [DefaultValue("{{Guid.NewGuid().ToString()}}")]
-        [DisplayFormat(DataFormatString = "Text")]
-        public string LinkName { get; set; }
-
     }
 
     public class InputSender
@@ -48,14 +39,6 @@ namespace Frends.Community.Amqp.Definitions
         [DisplayFormat(DataFormatString = "Text")]
         public string QueueOrTopicName { get; set; }
 
-
-        /// <summary>
-        /// Link name.
-        /// </summary>
-        [DefaultValue("{{Guid.NewGuid().ToString()}}")]
-        [DisplayFormat(DataFormatString = "Text")]
-        public string LinkName { get; set; }
-
     }
 
     public class Options
@@ -65,6 +48,13 @@ namespace Frends.Community.Amqp.Definitions
         /// </summary>
         [DefaultValue(30)]
         public int Timeout { get; set; }
+
+        /// <summary>
+        /// Link name.
+        /// </summary>
+        [DefaultValue("{{Guid.NewGuid().ToString()}}")]
+        [DisplayFormat(DataFormatString = "Text")]
+        public string LinkName { get; set; }
 
         /// <summary>
         /// Select whether certificate is used and where it can be found.
@@ -99,7 +89,6 @@ namespace Frends.Community.Amqp.Definitions
         [DefaultValue(false)]
         public bool DisableServerCertValidation { get; set; }
 
-
     }
 
     /// <summary>
@@ -127,7 +116,6 @@ namespace Frends.Community.Amqp.Definitions
 
     public class AmqpMessage
     {
-
         /// <summary>
         /// The message body.
         /// </summary>
@@ -137,7 +125,6 @@ namespace Frends.Community.Amqp.Definitions
 
     public class AmqpMessageProperties
     {
-
         /// <summary>
         /// Application properties section of an AMQP messages.
         /// </summary>
