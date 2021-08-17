@@ -9,14 +9,14 @@ using Amqp.Sasl;
 using System.Linq;
 
 
-using Frends.Community.Amqp.Definitions;
+using Frends.Amqp.Definitions;
 using System.ComponentModel;
 using Newtonsoft.Json.Linq;
 using System.Threading;
 
 #pragma warning disable 1591
 
-namespace Frends.Community.Amqp
+namespace Frends.Amqp
 {
     public static class Amqp
     {

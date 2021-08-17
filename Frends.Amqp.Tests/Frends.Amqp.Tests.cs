@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using System.IO;
 
-using Frends.Community.Amqp.Definitions;
+using Frends.Amqp.Definitions;
 
-namespace Frends.Community.Amqp.Tests
+namespace Frends.Amqp.Tests
 {
     [TestFixture]
     class TestClass

@@ -1,4 +1,4 @@
-# Frends.Community.AMQP
+# Frends.Amqp
 
 TODO: add workflow, local test runned .cmd and radme things
 
@@ -109,7 +109,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 Clone a copy of the repo
 
-`git clone https://github.com/CommunityHiQ/Frends.Community.AMQP.git`
+`git clone https://github.com/CommunityHiQ/Frends.Amqp.git`
 
 Restore dependencies
 
@@ -121,11 +121,11 @@ dotnet build
 
 Run tests
 
-dotnet test Frends.Community.Amqp.Tests
+dotnet test Frends.Amqp.Tests
 
 Create a nuget package
 
-dotnet pack Frends.Community.Amqp
+dotnet pack Frends.Amqp
 
 # Contributing
 When contributing to this repository, please first discuss the change you wish to make via issue, email, or any other method with the owners of this repository before making a change.
